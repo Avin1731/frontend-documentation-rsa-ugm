@@ -3,7 +3,7 @@
 Keamanan sisi aplikasi *smartphone* berpedoman pada pola Tiga A (AAA) yang terhubung langsung melalui *endpoint* pengaman BFF Next.js.
 
 ## 1. Authentication ("Who are you?")
-- **Client Auth via BFF**: Aplikasi melempar parameter login (*Username*, *Password*, dan MFA) ke rute `/api/auth` milik BFF.
+- **Client Auth via BFF**: Aplikasi melempar parameter login (*Username*, *Password*,) ke rute `/api/auth` milik BFF.
 - **Penyimpanan Secure Token**: Aplikasi tidak memanfaatkan *cookies*, melainkan menyandikan token sesi yang didapat di dalam penampung enkripsi sistem operasi (misalnya `SecureStore` Expo atau `EncryptedSharedPreferences`). Token ini dikunci dan tidak bisa diakses aplikasi lain.
 
 ## 2. Authorization ("What are you allowed to do?")

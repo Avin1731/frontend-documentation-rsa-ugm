@@ -21,8 +21,3 @@ Membangun antarmuka Web Dashboard berbasis Next.js (BFF) yang akan diakses melal
 - **Performa**: Grafik 24 jam dan *update* data tidak boleh membuat *browser lag* (hindari *rendering* berganda/animasi bertumpuk).
 - **Resolusi**: Dioptimalkan untuk tampilan *ultrawide* di Control Room rumah sakit.
 
-## 5. Rencana Opsional (Opsional/TBD)
-*Status fitur otomasi/kontrol pompa saat ini masih dalam pertimbangan (Belum ada kepastian dari WP-3). Jika nanti di-approve, berikut fitur yang ditambahkan:*
-- Kontrol aktuator pompa manual (ON/OFF switch) via API.
-- Manajemen konfigurasi *threshold* batas bawah dan atas (Hysteresis rule form).
-- Tombol *Emergency Stop*.

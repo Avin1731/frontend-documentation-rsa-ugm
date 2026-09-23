@@ -14,3 +14,5 @@
 - **Visualisasi Grafik**: `react-native-chart-kit` atau `victory-native` untuk menampilkan grafik riwayat air yang mulus (*native-friendly*) tanpa ancaman jeda lag.
 
 
+
+- **WebSocket Client**: Menggunakan `partysocket` atau native `WebSocket` untuk menerima push data realtime dari API Routes tanpa overhead besar.
