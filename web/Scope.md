@@ -5,7 +5,6 @@ Web Dashboard dirancang khusus untuk memonitor level air melalui monitor **ultra
 ## 1. Alur Kerja Pengguna (Workflow)
 - **Alur Masuk (Authentication Flow)**: Halaman Login $\rightarrow$ Input Username & Password (+ MFA) $\rightarrow$ Validasi *Role* (BFF) $\rightarrow$ Masuk ke Dashboard Utama sesuai hak akses.
 - **Alur Pemantauan (Monitoring Flow)**: Melihat *Overview* grid multi-tangki $\rightarrow$ Mengamati indikator visual (Persentase & Volume) $\rightarrow$ Jika tangki masuk zona *Critical* (<30%) atau *Warning*, *Banner Peringatan* mencolok akan muncul.
-- **Alur Kontrol Manual (Opsional / TBD)**: Pilih tangki $\rightarrow$ Buka *Pump Control Panel* $\rightarrow$ Tekan Toggle ON/OFF atau *Emergency Stop* $\rightarrow$ Verifikasi otorisasi $\rightarrow$ Perintah dikirim via API $\rightarrow$ Terekam di *Audit Trail*.
 - **Alur Riwayat & Audit**: Buka menu *Logs* atau *Reports* $\rightarrow$ Lihat grafik 24 jam atau daftar aktivitas (*Accounting*).
 
 ## 2. Navigasi & Komponen Utama (UI Components)
@@ -22,7 +21,6 @@ Web Dashboard dirancang khusus untuk memonitor level air melalui monitor **ultra
    - *Elemen*: Ringkasan multi-tangki (Tank A, B, C, N) dalam format *grid card*, grafik ringkas harian, dan *Banner Notifikasi/Alarm* jika ada kondisi darurat.
 3. **Detail Tangki & Statistik**: 
    - *Elemen*: Tampilan tangki berskala besar, rentang grafik historis 24 jam khusus tangki tersebut, indikator batas histeresis (*threshold*).
-   - *(Jika disetujui)*: *Pump Control Panel* (Toggle Switch ON/OFF, *Emergency Stop* merah besar).
 4. **Halaman Logs / Audit Trail**: 
    - *Elemen*: Tabel riwayat aktivitas admin/operator dan log peringatan sistem.
 5. **Settings & Users (Khusus Admin)**: 

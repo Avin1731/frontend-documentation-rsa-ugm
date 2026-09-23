@@ -29,7 +29,7 @@ Komunikasi data antara WP-3 (Backend) dan WP-4 (Frontend via BFF).
 Berdasarkan *requirements* dari WP-3:
 - **REST API**: Mengambil data historis/log (grafik 24 jam), data master tangki (`tanks`), dan riwayat log.
 - **WebSocket**: Channel realtime untuk pembaruan level air persentase secara instan dan push notifikasi untuk peringatan/alerts.
-- **Data Status**: WARNING (30-60%) dan CRITICAL (<30%). Konfirmasi aktuasi pompa (opsional, karena status aktuator masih TBD di WP-3).
+- **Data Status**: WARNING (30-60%) dan CRITICAL (<30%). Konfirmasi aktuasi pompa .
 
 ### Struktur Respon BFF (Ke Klien)
 - BFF menyajikan JSON yang bersih dan seragam. Komponen UI Web dan Mobile hanya melakukan proses rendering tanpa perlu kalkulasi logika tambahan.
@@ -37,7 +37,7 @@ Berdasarkan *requirements* dari WP-3:
 ### Sistem Keamanan & Autentikasi (AAA)
 - Alur Role-Based Access Control (RBAC) untuk admin/operator.
 - Pembuatan token akses di WP-3, disimpan secara aman menggunakan mekanisme BFF Next.js (HTTP-only cookies).
-- Pencatatan Audit Log untuk setiap akses (login, kontrol manual - jika ada).
+- Pencatatan Audit Log untuk setiap akses (login).
 
 ## 3. Panduan Antarmuka dan Alur Kerja Tim
 Acuan visual dan operasional untuk 4 anggota tim WP-4.

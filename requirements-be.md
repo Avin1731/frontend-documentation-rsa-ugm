@@ -37,8 +37,6 @@ WP-3 bertanggung jawab pada **inti pemrosesan data**: menerima data dari gateway
 - Menerima data level air per tangki secara berkala dari gateway via MQTT.
 - Menyimpan data mentah (raw) dan data hasil olahan (level %, volume liter) beserta timestamp.
 - Mendeteksi kondisi WARNING (30–60%) dan CRITICAL (<30%), lalu membuat/menutup alert — **ini fitur inti**, terlepas dari jadi/tidaknya automation.
-- **[OPSIONAL/TBD] Automation engine**: evaluasi threshold + hysteresis untuk memutuskan ON/OFF pompa/valve secara otomatis, lalu mengirim command kembali ke gateway. *Kemungkinan tidak jadi diimplementasikan — perlu keputusan final.*
-- **[OPSIONAL/TBD] Kontrol manual** dari operator (override pompa/valve) melalui API. Ini hanya relevan jika sistem tetap punya jalur kontrol (baik manual maupun auto); kalau proyek murni monitoring & warning, kemungkinan tidak ada kontrol sama sekali dari sisi backend.
 - Mencatat **audit log** untuk aksi user (login, kontrol manual pompa, perubahan rule, dsb).
 - Menyediakan REST API untuk histori (grafik 24 jam) dan **realtime channel** (WebSocket/SSE) untuk update level & status secara langsung ke dashboard.
 - Mendeteksi status koneksi node/gateway (online/offline) berdasarkan heartbeat/last seen.
@@ -164,8 +162,7 @@ Contoh payload (`command`):
 4. **MQTT Subscriber Service** (WP-3) menerima pesan, validasi schema (Zod), lalu:
    - Dorong ke **Redis Streams** sebagai buffer.
    - Teruskan ke **Warning Engine** untuk cek threshold (WARNING/CRITICAL) secara realtime.
-   - **[OPSIONAL/TBD]** Teruskan juga ke **Automation Engine** untuk evaluasi threshold/hysteresis, jika fitur ini jadi digunakan.
-5. **Batch Writer** membaca dari Redis Streams secara berkala/berbatch, lalu insert ke **PostgreSQL/TimescaleDB** (mencegah insert-per-pesan yang mahal).
+   5. **Batch Writer** membaca dari Redis Streams secara berkala/berbatch, lalu insert ke **PostgreSQL/TimescaleDB** (mencegah insert-per-pesan yang mahal).
 6. Jika level masuk zona WARNING/CRITICAL dan bertahan melewati durasi tertentu, sistem membuat entri `alerts` baru (atau menutup alert lama jika kondisi pulih). **Ini fitur inti** yang tetap ada terlepas dari status automation.
 7. **[OPSIONAL/TBD]** Jika Automation Engine aktif dan memutuskan perlu aksi (mis. level ≤30% → pompa ON), sistem:
    - Menulis `actuator_logs` (source = `auto`).
@@ -193,7 +190,7 @@ Contoh payload (`command`):
 
 ### ERD (Mermaid)
 
-#### Opsi 1: Tanpa Automation (Monitoring & Warning Saja) — *Rekomendasi jika otomasi tidak jadi*
+#### Skema Database (Final)
 
 ```mermaid
 erDiagram
@@ -277,9 +274,7 @@ erDiagram
     }
 ```
 
-#### Opsi 2: Lengkap dengan Automation & Aktuator (Opsional / TBD)
-
-```mermaid
+mermaid
 erDiagram
     TANKS ||--o{ SENSOR_NODES : has
     TANKS ||--o{ WATER_LEVEL_READINGS : has

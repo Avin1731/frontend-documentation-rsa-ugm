@@ -16,3 +16,5 @@ Proyek ini mengimplementasikan pola arsitektur **Backend-for-Frontend (BFF)** me
 - **HTTP Client**: Axios atau Fetch API (untuk berkomunikasi dengan BFF).
 
 
+
+- **WebSocket Client**: Menggunakan `partysocket` atau native `WebSocket` untuk menerima push data realtime dari API Routes tanpa overhead besar.

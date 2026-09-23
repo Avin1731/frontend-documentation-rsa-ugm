@@ -41,3 +41,12 @@ Jadi, ketika developer di tim Anda membuka chat AI (seperti GitHub Copilot, Curs
 > *"Baca dan pahami file action.md, lalu tolong buatkan UI komponen TankCard dengan indikator warna yang sesuai!"*
 
 Seketika itu juga, AI akan otomatis mempelajari konteks dan arsitektur proyek WP-4 tanpa Anda harus bersusah payah menjelaskan ulang aturan kerangka kerja tim kita.
+
+## 6. Standar Penulisan Commit (Conventional Commits)
+Gunakan format berikut saat melakukan commit agar riwayat proyek rapi:
+- `feat: [pesan]` -> Untuk menambahkan fitur baru.
+- `fix: [pesan]` -> Untuk memperbaiki bug/error.
+- `docs: [pesan]` -> Untuk mengubah dokumentasi.
+- `style: [pesan]` -> Untuk merapikan kode (spasi, format) tanpa ubah logika.
+- `refactor: [pesan]` -> Untuk merombak kode tanpa menambah fitur atau fix bug.
+- `chore: [pesan]` -> Untuk urusan maintenance (update dependencies, config).

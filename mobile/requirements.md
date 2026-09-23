@@ -22,7 +22,3 @@ Membangun aplikasi ponsel pintar (Android) khusus untuk operator lapangan rumah 
 - **Performa Memori**: Mencegah *memory leak* dari animasi menumpuk (menerapkan metode *Single-Lock* saat membuka detail tangki bawah).
 - **Resolusi**: Dioptimalkan mutlak untuk orientasi *vertikal (portrait)* dengan antarmuka yang sangat *finger-friendly* (kartu dan ikon besar).
 
-## 5. Rencana Opsional (Opsional/TBD)
-*Status kontrol otomatis/manual pompa belum pasti. Jika kedepannya WP-3 memberi lampu hijau, fitur berikut akan dikerjakan:*
-- Kontrol aktuator pompa manual (*Toggle switch* besar).
-- Tombol Merah *Emergency Stop* besar di setiap menu tangki.
