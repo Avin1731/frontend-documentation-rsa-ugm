@@ -29,7 +29,7 @@ Untuk memastikan integrasi antara Backend dan Frontend berjalan tanpa miskomunik
 ### Prinsip Alur Perubahan:
 1. **Repo BE $\rightarrow$ PRD.md:** Segala perubahan endpoint atau skema di Core Backend dicatat terlebih dahulu di [`PRD.md`](./PRD.md).
 2. **PRD.md $\rightarrow$ PRD-MFE.md:** Penyesuaian arsitektur BFF, pemetaan rute bersama, dan standar keamanan sesi dipetakan di [`PRD-MFE.md`](./PRD-MFE.md).
-3. **PRD-MFE.md $\rightarrow$ Platform PRD:** Masing-masing platform memiliki PRD turunan teknis spesifik ([`web/PRD-Web.md`](./web/PRD-Web.md) dan `mobile/PRD-Mobile.md`).
+3. **PRD-MFE.md $\rightarrow$ Platform PRD:** Masing-masing platform memiliki PRD turunan teknis spesifik ([`web/PRD-Web.md`](./web/PRD-Web.md) dan [`mobile/PRD-Mobile.md`](./mobile/PRD-Mobile.md).
 4. **Platform PRD $\rightarrow$ Implementasi Kode:** Pengembang di masing-masing repositori mengacu mutlak pada PRD platformnya.
 
 ---
