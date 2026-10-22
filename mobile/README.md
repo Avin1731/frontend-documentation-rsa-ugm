@@ -1,24 +1,56 @@
-# 📱 Mobile App WP-4: Sistem Pemantauan Level Air
+# 📱 SI-POTA Mobile — Dokumentasi Pengembangan Android
+### Aplikasi Saku Pemantauan Tangki Air Rumah Sakit Berbasis IoT (RSA UGM)
 
-Selamat datang di repositori Aplikasi Mobile (Android) untuk proyek riset **Sistem Informasi Pemantauan dan Pengendalian Level Air Berbasis IoT di RSA UGM**. Repositori ini didedikasikan sepenuhnya untuk mengembangkan aplikasi *smartphone* reaktif bagi para operator lapangan rumah sakit.
+> **Repositori Target Pengembangan:** `frontend-mobile-rsa-ugm`  
+> **Parent Documentation:** [PRD Master Frontend (`../PRD-MFE.md`)](../PRD-MFE.md) $\longleftarrow$ [PRD Core Backend (`../PRD.md`)](../PRD.md)  
+> **Spesifikasi Teknis Lengkap:** [**`PRD-Mobile.md`**](./PRD-Mobile.md)
 
-## 🚀 Keputusan Teknis Final
-Aplikasi ini dikembangkan dengan pendekatan modern dan efisien, sesuai dengan kesepakatan final arsitektur:
-- **Framework Utama**: **React Native via Expo** (Mempermudah *development loop* dan kemudahan *build* rilis).
-- **Styling**: Native StyleSheet / NativeWind (Tailwind).
-- **State Management**: **Zustand** (Standar state realtime kita, sinkron dengan proyek Web).
-- **Grafik**: **react-native-chart-kit** (Performa terbaik untuk grafik mobile).
-- **Notifikasi**: **Expo Push Notifications / FCM** (Untuk dukungan *Background Push Notifications* sistem kritis).
+---
 
-## 📂 Struktur Dokumentasi (Wajib Dibaca)
-Bagi seluruh rekan *developer* UI/UX di Repo ini, Anda diwajibkan meninjau panduan spesifik berikut sebelum berkontribusi:
+## 📌 Alur & Hierarki Dokumentasi
 
-1. **[Kebutuhan Proyek (Requirements)](./requirements.md)**: Gambaran besar fitur, lingkup interaksi, dan spesifikasi *Background Push Notification*.
-2. **[Panduan Developer (Guideline)](./guideline.md)**: Cara melakukan instalasi `pnpm`, dan pengetesan aplikasi *real-time* via aplikasi *Expo Go*.
-3. **[AI Actions & Prompting](./action.md)**: Kalimat *prompt* andalan agar bantuan AI (*ChatGPT/Claude*) menghasilkan *code* yang patuh arsitektur.
-4. **[Tech Stack](./Techstack.md)**: Rincian spesifik Expo, NativeWind, dan konsep *fetching* data ringan dari BFF Web.
-5. **[Arsitektur](./Architecture.md)**: Pemisahan Navigasi (*Stack* dan *Tab*) dan komponen *ScreenLayout*.
-6. **[Scope Halaman](./Scope.md)**: Rincian daftar halaman vertikal, prinsip *finger-friendly*, dan *sorting* prioritas tangki kritis.
-7. **[Security & AAA](./Security-AAA.md)**: Penggunaan ketat `SecureStore` (Dilarang *AsyncStorage*!) dan pembedaan UI dari sisi Role.
+Sistem dokumentasi proyek mengadopsi prinsip *single source of truth* bertingkat:
+$$\text{Core Backend (PRD.md)} \longrightarrow \text{Master Frontend (PRD-MFE.md)} \longrightarrow \text{Mobile PRD (PRD-Mobile.md)} \longrightarrow \text{Repo FE Mobile}$$
 
-> **Catatan Integrasi**: Aplikasi Mobile ini dikhususkan berinteraksi dengan URL **BFF Next.js** (berada di Repositori Web), dan **BUKAN** meminta langsung dari *backend* utama WP-3. Pastikan server BFF rekan Web Anda menyala saat mengetes koneksi API, login, atau notifikasi!
+* Seluruh kebutuhan antarmuka Android dan integrasi mobile mengacu mutlak pada:  
+  👉 [**`PRD-Mobile.md` (Product Requirements Document — Mobile App)**](./PRD-Mobile.md)
+
+---
+
+## 🚀 Ringkasan Teknis
+* **Framework:** React Native 0.86.3 via Expo SDK 57
+* **Bahasa:** TypeScript 6.x
+* **HTTP Client:** Axios v1.20+ (terhubung ke Web BFF Next.js via IP LAN)
+* **Realtime Channel:** WebSocket native (`ws://<LAN_IP>:8000/ws` ke Fastify Core)
+* **State Management:** Zustand v5 (Tanks, Alerts, Auth, Devices)
+* **Keamanan Kredensial:** `expo-secure-store` (Enkripsi hardware, anti-AsyncStorage)
+* **Desain UI:** Dark Medical Theme (`#0A354C` & `#0B132B`), ramah sentuhan jempol (*finger-friendly*)
+
+---
+
+## 🛠️ Panduan Memulai Cepat (Quick Start)
+
+```bash
+# 1. Masuk ke direktori repositori mobile
+cd frontend-mobile-rsa-ugm
+
+# 2. Instalasi dependensi
+npm install
+
+# 3. Pastikan konfigurasi IP LAN di App.tsx atau src/config/env.ts sesuai IP laptop Anda
+# (contoh: http://192.168.1.15:3000 untuk BFF)
+
+# 4. Jalankan bundler Expo
+npx expo start
+
+# 5. Buka aplikasi Expo Go di HP Android Anda dan scan QR Code
+# 6. Validasi kualitas kode sebelum mengajukan PR
+npx tsc --noEmit && npx expo export --platform android
+```
+
+---
+
+## 🔒 Kebijakan Git & Branch Protection
+* **Branch `main` & `dev`:** Dilindungi *Branch Protection*, dilarang *direct push*.
+* **Workflow:** Kerjakan di branch `feat/nama-fitur` dari `dev`, lakukan commit berkala di lokal, pastikan build lokal sukses, push ke dual-remote (`origin` & `upstream`), lalu buat Pull Request ke `dev`.
+* **CI Quality Gate:** PR hanya dapat di-merge jika seluruh pipeline GitHub Actions CI berstatus hijau.
