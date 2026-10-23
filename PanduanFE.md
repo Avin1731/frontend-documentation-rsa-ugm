@@ -191,19 +191,25 @@ Untuk menjaga kode tidak rusak dan mencegah konflik antar developer, seluruh tim
 
 ### 📐 Hirarki & Pohon Branch
 ```
-[main]          <-- Branch Rilis Produksi (Diproteksi ketat, dilarang coding langsung)
-  │
-[dev]           <-- Branch Integrasi Utama (Semua fitur bermuara ke sini)
-  │
-  ├── feat/nama-fitur-a   <-- Cabang kerja Anda
-  └── feat/nama-fitur-b
+[main]          <-- Production Branch (Stable / Live)
+  │  (buat dev berdasarkan main)
+  ▼
+[dev]           <-- Staging Branch (Tempat integrasi semua fitur)
+  │  (buat feat berdasarkan dev)
+  ▼
+[feat/*]        <-- Feature Branch (Tempat aktif developer ngoding)
 ```
 
+### 🔄 Alur Pull Request (PR) yang Benar:
+1. **Fitur Selesai:** PR dari `feat/*` -> `dev` (untuk pengujian & penyelesaian fitur di staging).
+2. **Rilis Produksi:** PR dari `dev` -> `main` (untuk release kumpulan fitur yang sudah teruji ke production).
+
 > ⚠️ **Aturan Emas:**
-> 1. `main` digunakan sebagai acuan `dev`.
-> 2. `dev` digunakan untuk membuat cabang fitur (`feat/*`).
-> 3. **JANGAN PERNAH** ngoding langsung di branch `main` atau `dev`!
-> 4. Seluruh pengerjaan fitur/perbaikan wajib di branch baru bertipe `feat/*` atau `fix/*`.
+> 1. **Branch `dev` dibuat berdasarkan `main`** (sebagai basis staging).
+> 2. **Branch `feat/*` dibuat berdasarkan `dev`** (sebagai cabang pengerjaan fitur baru).
+> 3. **JANGAN PERNAH ngoding langsung di branch `main` atau `dev`!**
+> 4. Seluruh penambahan kode wajib di branch baru bertipe `feat/*` (atau `fix/*` jika bugfix).
+> 5. Selalu lakukan `git pull origin dev` sebelum membuat branch `feat/*` baru agar selalu selaras dengan staging terkini.
 
 ---
 
