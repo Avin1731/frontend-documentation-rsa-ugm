@@ -191,25 +191,26 @@ Untuk menjaga kode tidak rusak dan mencegah konflik antar developer, seluruh tim
 
 ### 📐 Hirarki & Pohon Branch
 ```
-[main]          <-- Production Branch (Stable / Live)
-  │  (buat dev berdasarkan main)
+[main]          <-- Branch Produksi (Hanya untuk rilis versi stabil)
+  │  (basis pembuatan branch dev)
   ▼
-[dev]           <-- Staging Branch (Tempat integrasi semua fitur)
-  │  (buat feat berdasarkan dev)
+[dev]           <-- Branch Staging (Pusat aktivitas sehari-hari kita)
+  │  (setiap mulai task baru, selalu buat branch feat dari sini)
   ▼
-[feat/*]        <-- Feature Branch (Tempat aktif developer ngoding)
+[feat/*]        <-- Branch Fitur (Tempat kita ngoding tugas masing-masing)
 ```
 
-### 🔄 Alur Pull Request (PR) yang Benar:
-1. **Fitur Selesai:** PR dari `feat/*` -> `dev` (untuk pengujian & penyelesaian fitur di staging).
-2. **Rilis Produksi:** PR dari `dev` -> `main` (untuk release kumpulan fitur yang sudah teruji ke production).
+### 🔄 Alur Kerja Sehari-hari (Cukup di `feat` & `dev`):
+1. **Pekerjaan Harian Kita:** Seluruh aktivitas ngoding kita berputar di antara branch **`feat/*`** dan **`dev`**.
+2. **Selesai Fitur:** Buka PR dari **`feat/*` -> `dev`** untuk diuji bersama di staging.
+3. **Branch `main`:** Hanya disentuh bersama saat kita sudah sepakat mau rilis versi yang benar-benar stabil (`dev` -> `main`). Untuk pekerjaan fitur sehari-hari, tidak perlu menyentuh `main`.
 
-> ⚠️ **Aturan Emas:**
-> 1. **Branch `dev` dibuat berdasarkan `main`** (sebagai basis staging).
-> 2. **Branch `feat/*` dibuat berdasarkan `dev`** (sebagai cabang pengerjaan fitur baru).
-> 3. **JANGAN PERNAH ngoding langsung di branch `main` atau `dev`!**
-> 4. Seluruh penambahan kode wajib di branch baru bertipe `feat/*` (atau `fix/*` jika bugfix).
-> 5. Selalu lakukan `git pull origin dev` sebelum membuat branch `feat/*` baru agar selalu selaras dengan staging terkini.
+> ⚠️ **Aturan Praktis:**
+> 1. **Branch `feat/*` selalu dibuat berdasarkan `dev`** (bukan dari `main`).
+> 2. **Selalu lakukan `git pull origin dev`** setiap hari sebelum mulai ngoding agar selalu dapat update teman yang lain.
+> 3. **JANGAN ngoding langsung di branch `main` atau `dev`** agar riwayat commit tidak bentrok.
+> 4. Seluruh fitur atau fix dikerjakan di branch baru (`feat/nama-fitur` atau `fix/nama-bug`).
+> 5. Target PR kita sehari-hari adalah **selalu ke `dev`**.
 
 ---
 
@@ -263,10 +264,10 @@ git push -u origin feat/tampilan-grafik-tangki
 4. Tunggu pengecekan otomatis **GitHub Actions CI Quality Gate**.
 5. Jika CI sudah berstatus **HIJAU (PASS)** 🟢, PR siap direview dan di-merge ke `dev`.
 
-#### 8. Rilis ke `main` (Setelah `dev` Stabil)
-Setelah serangkaian fitur di `dev` teruji dan siap dirilis:
-- Buat PR dari **`dev` -> `main`**.
-- Pastikan CI di `main` juga berstatus **HIJAU (PASS)** sebelum di-merge.
+#### 8. Rilis ke `main` (Saat Versi Sudah Siap Dirilis)
+Setelah fitur-fitur yang dikerjakan di `dev` sudah beres dan teruji bersama:
+- Tinggal buka PR dari **`dev` -> `main`** untuk merilis versi stabil.
+- Pastikan CI di `main` berstatus **HIJAU (PASS)** sebelum di-merge.
 
 ---
 
