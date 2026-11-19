@@ -22,7 +22,7 @@ $$\text{Core Backend (PRD.md)} \longrightarrow \text{Master Frontend (PRD-MFE.md
 * **Library UI:** React 19.3.0
 * **Bahasa:** TypeScript ~6.0.3
 * **HTTP Client:** Axios ^1.20.0 (terhubung ke Web BFF Next.js via IP LAN / Tailscale)
-* **Realtime Channel:** WebSocket native (`ws://<HOST_IP>:8000/ws` ke Fastify Core)
+* **Realtime Channel:** WebSocket native (`ws://<HOST_IP>:8000/ws?token=<jwt>` ke Fastify Core)
 * **State Management:** Zustand ^5.0.16 (Tanks, Alerts, Auth, Devices)
 * **Keamanan Kredensial:** Expo SecureStore ~58.0.2 (Enkripsi hardware Keystore/Keychain, anti-AsyncStorage)
 * **Unit Testing:** Jest ^30.5.2 & ts-jest ^29.4.15 (Automated unit tests dengan metrik coverage)

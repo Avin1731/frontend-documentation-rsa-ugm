@@ -135,7 +135,7 @@ Backend menyediakan 8 modul fitur fungsional utama yang siap dikonsumsi oleh ant
 | **F-05** | **Pemantauan Perangkat (Gateways & Sensor Nodes)** (Status LoRa/RPi) | ✅ | ✅ | ✅ |
 | **F-06** | **Manajemen Master Tangki** (Tambah, Ubah Threshold, Hapus) | ✅ | ❌ | ❌ |
 | **F-07** | **Manajemen Pengguna (User Management)** (CRUD Akun, Role, Reset) | ✅ | ❌ | ❌ |
-| **F-08** | **Audit Log & Ekspor Laporan** (Lihat audit trail & download CSV) | ✅ | ✅ *(Lihat Saja)* | ❌ |
+| **F-08** | **Audit Log & Ekspor Laporan** (Lihat audit trail & download CSV) | ✅ | ✅ *(Ekspor CSV saja)* | ❌ |
 
 ---
 
@@ -151,8 +151,8 @@ Backend menyediakan 8 modul fitur fungsional utama yang siap dikonsumsi oleh ant
 #### `F-02`: Histori Time-Series & Analisis Grafik 24 Jam
 * **Tujuan:** Menyediakan data berkala untuk komponen grafik garis interaktif di dashboard Web dan Mobile.
 * **Dukungan Backend:**
-  * `GET /api/readings/tank/:id?range=24h`: Mengambil histori pembacaan per tangki.
-  * `GET /api/readings/multi-tank?hours=24`: Mengambil histori multi-tangki sekaligus dengan agregasi interval 1 jam untuk performa visualisasi instan tanpa membuat browser lag.
+  * `GET /api/tanks/:id/readings?hours=24&limit=500`: Mengambil histori pembacaan per tangki berdasarkan rentang jam (`hours`) dan batas data (`limit`, maks. 1000).
+  * `GET /api/readings/history?hours=24`: Mengambil data historis pembacaan seluruh tangki (maks. 1000 baris terbaru) untuk perbandingan grafik di dashboard.
 
 #### `F-03`: Deteksi Peringatan & Early Warning (Alert Engine)
 * **Tujuan:** Memberi sinyal bahaya seketika saat volume air anomali atau mendekati habis.
@@ -176,9 +176,9 @@ Backend menyediakan 8 modul fitur fungsional utama yang siap dikonsumsi oleh ant
   * Realtime Broadcast via WebSocket event `NODE_STATUS`.
 
 #### `F-06`: Manajemen Master Tangki & Konfigurasi Threshold
-* **Tujuan:** Memberikan wewenang kepada Administrator untuk mendaftarkan tangki baru, mengubah kapasitas, dan menyetel batas peringatan minimum/maksimum.
+* **Tujuan:** Memberikan wewenang kepada Administrator untuk mendaftarkan tangki baru, mengubah kapasitas, kalibrasi jarak sensor, dan menyetel batas peringatan minimum/maksimum.
 * **Dukungan Backend:**
-  * `POST /api/tanks`, `PUT /api/tanks/:id`, `DELETE /api/tanks/:id`.
+  * `POST /api/tanks`, `PATCH / PUT /api/tanks/:id`, `DELETE /api/tanks/:id`.
   * Proteksi RBAC ketat (hanya role `admin`).
 
 #### `F-07`: Manajemen Pengguna & Keamanan (AAA)
@@ -224,6 +224,10 @@ erDiagram
         numeric capacity_liters
         numeric min_threshold_percent
         numeric max_threshold_percent
+        numeric min_distance_cm
+        numeric max_distance_cm
+        numeric latitude
+        numeric longitude
         timestamptz created_at
         timestamptz updated_at
     }
@@ -338,25 +342,24 @@ Berikut adalah daftar lengkap (matriks periksa) seluruh endpoint API yang disedi
 | 3 | **Auth** | `GET` | `/api/auth/me` | Web & Mobile | Viewer | Profil User, Header/Sidebar, Role Check | `P0` |
 | 4 | **Tanks** | `GET` | `/api/tanks` | Web & Mobile | Viewer | Dashboard Overview Grid, Card List Tangki | `P0` |
 | 5 | **Tanks** | `GET` | `/api/tanks/:id` | Web & Mobile | Viewer | Halaman/Modal Detail Tangki & Gauge Air | `P0` |
-| 6 | **Tanks** | `GET` | `/api/tanks/:id/readings` | Web & Mobile | Viewer | Komponen Grafik Time-Series Tangki Tunggal | `P0` |
+| 6 | **Tanks** | `GET` | `/api/tanks/:id/readings` | Web & Mobile | Viewer | Komponen Grafik Time-Series Tangki Tunggal (`?hours=&limit=`) | `P0` |
 | 7 | **Tanks** | `POST` | `/api/tanks` | Web (Admin) | Admin | Form Tambah Master Tangki Baru | `P1` |
-| 8 | **Tanks** | `PUT` / `PATCH` | `/api/tanks/:id` | Web (Admin) | Admin | Form Edit Kapasitas & Threshold Tangki | `P1` |
+| 8 | **Tanks** | `PATCH` / `PUT` | `/api/tanks/:id` | Web & Mobile (Admin) | Admin | Form Edit Kapasitas, Kalibrasi Jarak & Threshold Tangki | `P1` |
 | 9 | **Tanks** | `DELETE` | `/api/tanks/:id` | Web (Admin) | Admin | Tombol Aksi Hapus Master Tangki | `P2` |
 | 10 | **Readings**| `GET` | `/api/readings/latest` | Web & Mobile | Viewer | Polling Fallback Quick Level Widget | `P1` |
-| 11 | **Readings**| `GET` | `/api/readings/tank/:id` | Web & Mobile | Viewer | Analisis Historis Pembacaan Sensor Tangki | `P1` |
-| 12 | **Readings**| `GET` | `/api/readings/multi-tank` | Web Only | Viewer | Grafik Perbandingan Multi-Tangki (24 Jam) | `P1` |
-| 13 | **Alerts** | `GET` | `/api/alerts` | Web & Mobile | Viewer | Banner/Notifikasi Peringatan, Halaman Alert | `P0` |
-| 14 | **Alerts** | `PATCH` / `PUT` | `/api/alerts/:id/resolve`| Web & Mobile | Operator | Tombol Aksi "Resolve / Selesaikan Alert" | `P0` |
-| 15 | **Devices** | `GET` | `/api/gateways` | Web & Mobile | Viewer | Status Koneksi Gateway RPi & Node LoRa | `P1` |
-| 16 | **Devices** | `GET` | `/api/nodes` | Web & Mobile | Viewer | Status Modul Sensor STM32 (Baterai/RSSI) | `P1` |
-| 17 | **Users** | `GET` | `/api/users` | Web (Admin) | Admin | Tabel Manajemen Daftar Pengguna | `P1` |
-| 18 | **Users** | `POST` | `/api/users` | Web (Admin) | Admin | Form Pendaftaran Akun Operator/Viewer | `P1` |
-| 19 | **Users** | `PATCH` / `PUT` | `/api/users/:id` | Web (Admin) | Admin | Modal Edit Peran, Status & Reset Password | `P1` |
-| 20 | **Users** | `DELETE` | `/api/users/:id` | Web (Admin) | Admin | Tombol Nonaktifkan Akun Pengguna | `P2` |
-| 21 | **Audit** | `GET` | `/api/audit-logs` | Web (Admin) | Operator | Halaman Log Riwayat Aktivitas & Keamanan | `P2` |
-| 22 | **Reports** | `GET` | `/api/reports/readings/export` | Web Only | Operator | Tombol Unduh Laporan Sensor (.CSV) | `P2` |
-| 23 | **Reports** | `GET` | `/api/reports/alerts/export` | Web Only | Operator | Tombol Unduh Laporan Riwayat Alert (.CSV) | `P2` |
-| 24 | **Realtime**| `WS` | `ws://<host>:8000/ws` | Web & Mobile | Viewer | Realtime Level Stream, Live Alert & Status | `P0` |
+| 11 | **Readings**| `GET` | `/api/readings/history` | Web Only | Viewer | Grafik Perbandingan Multi-Tangki (`?hours=24`) | `P1` |
+| 12 | **Alerts** | `GET` | `/api/alerts` | Web & Mobile | Viewer | Banner/Notifikasi Peringatan, Halaman Alert (`?status=`) | `P0` |
+| 13 | **Alerts** | `PATCH` / `PUT` | `/api/alerts/:id/resolve`| Web & Mobile | Operator | Tombol Aksi "Resolve / Selesaikan Alert" | `P0` |
+| 14 | **Devices** | `GET` | `/api/gateways` | Web & Mobile | Viewer | Status Koneksi Gateway RPi & Node LoRa | `P1` |
+| 15 | **Devices** | `GET` | `/api/nodes` | Web & Mobile | Viewer | Status Modul Sensor STM32 (RSSI / Last Seen) | `P1` |
+| 16 | **Users** | `GET` | `/api/users` | Web & Mobile (Admin) | Admin | Tabel/Daftar Manajemen Pengguna | `P1` |
+| 17 | **Users** | `POST` | `/api/users` | Web (Admin) | Admin | Form Pendaftaran Akun Operator/Viewer | `P1` |
+| 18 | **Users** | `PATCH` / `PUT` | `/api/users/:id` | Web & Mobile (Admin) | Admin | Edit Peran, Status Aktif & Reset Password | `P1` |
+| 19 | **Users** | `DELETE` | `/api/users/:id` | Web (Admin) | Admin | Tombol Hapus Akun Pengguna | `P2` |
+| 20 | **Audit** | `GET` | `/api/audit-logs` | Web & Mobile (Admin) | Admin | Halaman Log Riwayat Aktivitas & Keamanan (`?page=&limit=&entity=`) | `P2` |
+| 21 | **Reports** | `GET` | `/api/reports/readings/export` | Web Only | Viewer | Tombol Unduh Laporan Sensor (.CSV, `?tankId=&startDate=&endDate=`) | `P2` |
+| 22 | **Reports** | `GET` | `/api/reports/alerts/export` | Web Only | Viewer | Tombol Unduh Laporan Riwayat Alert (.CSV, `?level=&startDate=&endDate=`) | `P2` |
+| 23 | **Realtime**| `WS` | `ws://<host>:8000/ws?token=<jwt>` | Web & Mobile | Viewer | Realtime Level Stream, Live Alert & Status (Wajib `?token=`) | `P0` |
 
 > 📌 **Catatan Prioritas Frontend:**
 > * **`P0` (Critical - Core MVP):** Wajib selesai terlebih dahulu agar monitoring tangki, login, tampilan data level air, dan sistem peringatan darurat berfungsi secara penuh di Web & Mobile.
@@ -410,8 +413,9 @@ Berikut adalah daftar lengkap (matriks periksa) seluruh endpoint API yang disedi
 ### 6.3 Modul Autentikasi Pengguna
 
 #### `POST /api/auth/login`
-* **Deskripsi:** Memvalidasi kredensial dan menerbitkan JWT token.
+* **Deskripsi:** Memvalidasi kredensial dan menerbitkan JWT token (masa berlaku default `JWT_EXPIRES_IN=1d` / 24 jam). Dibatasi rate limit khusus login (default: 5 request/menit).
 * **Autentikasi:** Publik
+* **Validation Rules:** `username` (min 3 karakter), `password` (min 6 karakter).
 * **Request Body:**
   ```json
   {
@@ -423,13 +427,13 @@ Berikut adalah daftar lengkap (matriks periksa) seluruh endpoint API yang disedi
   ```json
   {
     "success": true,
+    "message": "Login berhasil",
     "data": {
       "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
       "user": {
         "id": "7b89f5c2-3e21-4f90-a548-d3c267b14002",
         "username": "admin",
-        "role": "admin",
-        "isActive": true
+        "role": "admin"
       }
     }
   }
@@ -457,8 +461,8 @@ Berikut adalah daftar lengkap (matriks periksa) seluruh endpoint API yang disedi
 ### 6.4 Modul Monitoring & Master Tangki
 
 #### `GET /api/tanks`
-* **Deskripsi:** Mengambil seluruh daftar tangki beserta pembacaan sensor terbaru, alert aktif, dan informasi node terpasang.
-* **Autentikasi:** Publik / Opsional Bearer Token
+* **Deskripsi:** Mengambil seluruh daftar tangki beserta pembacaan sensor terbaru, alert aktif, dan daftar node terpasang.
+* **Autentikasi:** Wajib Bearer Token (`Authorization: Bearer <token>`)
 * **Respons Berhasil (`200 OK`):**
   ```json
   {
@@ -471,6 +475,10 @@ Berikut adalah daftar lengkap (matriks periksa) seluruh endpoint API yang disedi
         "capacityLiters": "10000.00",
         "minThresholdPercent": "30.00",
         "maxThresholdPercent": "90.00",
+        "minDistanceCm": "30.00",
+        "maxDistanceCm": "350.00",
+        "latitude": "-7.7428450",
+        "longitude": "110.3511200",
         "createdAt": "2026-09-14T06:02:15.123Z",
         "updatedAt": "2026-09-14T06:02:15.123Z",
         "latestReading": {
@@ -479,25 +487,40 @@ Berikut adalah daftar lengkap (matriks periksa) seluruh endpoint API yang disedi
           "sensorNodeId": "c4d18723-5e72-46fa-b12e-188998abcf12",
           "levelPercent": "72.40",
           "volumeLiters": "7240.00",
+          "rawValue": "112.40",
           "rssi": -74,
           "recordedAt": "2026-10-22T03:00:00.000Z"
         },
         "activeAlert": null,
-        "sensorNode": {
-          "id": "c4d18723-5e72-46fa-b12e-188998abcf12",
-          "deviceCode": "NODE-TNK-01",
-          "status": "active",
-          "lastRssi": -74,
-          "lastSeen": "2026-10-22T03:00:00.000Z"
-        }
+        "nodes": [
+          {
+            "id": "c4d18723-5e72-46fa-b12e-188998abcf12",
+            "tankId": "e0a7e584-6091-4560-b6aa-cf4a852875a1",
+            "gatewayId": "11111111-2222-3333-4444-555555555555",
+            "deviceCode": "STM32-ATA",
+            "sensorType": "ultrasonic",
+            "status": "active",
+            "lastRssi": -74,
+            "lastSeen": "2026-10-22T03:00:00.000Z",
+            "createdAt": "2026-09-14T06:02:15.123Z"
+          }
+        ]
       }
     ]
   }
   ```
 
 #### `GET /api/tanks/:id`
-* **Deskripsi:** Detail 1 tangki spesifik beserta histori 24 jam terakhir dan alert aktif.
-* **Autentikasi:** Publik / Opsional Bearer Token
+* **Deskripsi:** Detail 1 tangki spesifik beserta 50 pembacaan terakhir (`recentReadings`) dan 10 alert terakhir (`recentAlerts`).
+* **Autentikasi:** Wajib Bearer Token (`Authorization: Bearer <token>`)
+
+#### `GET /api/tanks/:id/readings`
+* **Deskripsi:** Mengambil data histori pembacaan untuk grafik tangki tunggal (urut `recordedAt DESC`; FE wajib membalik urutan ke `ASC` sebelum dirender ke chart).
+* **Autentikasi:** Wajib Bearer Token (`Authorization: Bearer <token>`)
+* **Query Parameters:**
+  * `hours` (opsional, default: `24`): Rentang jam ke belakang (misal: `24`, `72`, `168`, `720`).
+  * `limit` (opsional, default: `500`, maks: `1000`): Batas jumlah baris data.
+* **Respons Berhasil (`200 OK`):** `{ success: true, tankId, hours, count, data: WaterLevelReading[] }`
 
 #### `POST /api/tanks`
 * **Deskripsi:** Mendaftarkan tangki baru ke dalam sistem.
@@ -509,18 +532,24 @@ Berikut adalah daftar lengkap (matriks periksa) seluruh endpoint API yang disedi
     "location": "Gedung Bedah Lantai 4",
     "capacityLiters": 12000,
     "minThresholdPercent": 35,
-    "maxThresholdPercent": 95
+    "maxThresholdPercent": 95,
+    "minDistanceCm": 30,
+    "maxDistanceCm": 350,
+    "latitude": -7.742845,
+    "longitude": 110.35112
   }
   ```
 * **Respons Berhasil (`201 Created`):** Objek data tangki yang berhasil disimpan.
 
-#### `PUT /api/tanks/:id`
-* **Deskripsi:** Memperbarui data tangki atau batas threshold peringatan.
+#### `PATCH /api/tanks/:id` & `PUT /api/tanks/:id`
+* **Deskripsi:** Memperbarui data tangki, kalibrasi jarak, koordinat, atau batas threshold peringatan.
 * **Autentikasi:** Khusus Role `admin`
+* **Respons Berhasil (`200 OK`):** `{ success: true, data: Tank }`
 
 #### `DELETE /api/tanks/:id`
-* **Deskripsi:** Menghapus tangki dari sistem (jika tidak memiliki pembacaan aktif).
+* **Deskripsi:** Menghapus tangki dari sistem (beserta data terkait secara cascade).
 * **Autentikasi:** Khusus Role `admin`
+* **Respons Berhasil (`200 OK`):** `{ success: true, message: "Tank deleted successfully" }`
 
 ---
 
@@ -528,6 +557,7 @@ Berikut adalah daftar lengkap (matriks periksa) seluruh endpoint API yang disedi
 
 #### `GET /api/readings/latest`
 * **Deskripsi:** Mengambil pembacaan level air paling baru dari semua tangki.
+* **Autentikasi:** Wajib Bearer Token (`Authorization: Bearer <token>`)
 * **Respons Berhasil (`200 OK`):**
   ```json
   {
@@ -536,34 +566,36 @@ Berikut adalah daftar lengkap (matriks periksa) seluruh endpoint API yang disedi
       {
         "tankId": "e0a7e584-6091-4560-b6aa-cf4a852875a1",
         "tankName": "Tangki Atap Gedung Utama",
-        "levelPercent": "72.40",
-        "volumeLiters": "7240.00",
-        "recordedAt": "2026-10-22T03:00:00.000Z"
+        "reading": {
+          "id": 14205,
+          "tankId": "e0a7e584-6091-4560-b6aa-cf4a852875a1",
+          "sensorNodeId": "c4d18723-5e72-46fa-b12e-188998abcf12",
+          "levelPercent": "72.40",
+          "volumeLiters": "7240.00",
+          "rawValue": "112.40",
+          "rssi": -74,
+          "recordedAt": "2026-10-22T03:00:00.000Z"
+        }
       }
     ]
   }
   ```
 
-#### `GET /api/readings/tank/:id`
-* **Deskripsi:** Mengambil data histori log untuk grafik tangki tunggal.
-* **Query Parameters:**
-  * `range` (opsional): `"24h"`, `"7d"`, `"30d"` (default: `"24h"`).
-  * `limit` (opsional): batas baris data (default: 100).
-
-#### `GET /api/readings/multi-tank`
-* **Deskripsi:** Mengambil histori agregasi seluruh tangki (interval 1 jam) selama 24 jam terakhir. Dioptimalkan untuk komponen perbandingan multi-grafik di dashboard Web.
-* **Query Parameters:** `hours` (default: 24).
+#### `GET /api/readings/history`
+* **Deskripsi:** Mengambil histori pembacaan seluruh tangki dalam rentang jam tertentu (maks. 1000 baris terbaru, urut `recordedAt DESC`) untuk perbandingan grafik multi-tangki di dashboard Web.
+* **Autentikasi:** Wajib Bearer Token (`Authorization: Bearer <token>`)
+* **Query Parameters:** `hours` (default: `24`).
 * **Respons Berhasil (`200 OK`):**
   ```json
   {
     "success": true,
     "data": [
       {
-        "timeBucket": "2026-10-22T02:00:00.000Z",
+        "id": 14205,
         "tankId": "e0a7e584-6091-4560-b6aa-cf4a852875a1",
-        "tankName": "Tangki Atap Gedung Utama",
-        "avgLevel": 74.2,
-        "avgVolume": 7420
+        "levelPercent": "72.40",
+        "volumeLiters": "7240.00",
+        "recordedAt": "2026-10-22T03:00:00.000Z"
       }
     ]
   }
@@ -575,19 +607,20 @@ Berikut adalah daftar lengkap (matriks periksa) seluruh endpoint API yang disedi
 
 #### `GET /api/alerts`
 * **Deskripsi:** Mengambil daftar riwayat alert.
+* **Autentikasi:** Wajib Bearer Token (`Authorization: Bearer <token>`)
 * **Query Parameters:**
   * `status` (opsional): `"active"` atau `"resolved"`.
-  * `tankId` (opsional): Filter berdasarkan UUID tangki tertentu.
-  * `limit` (opsional, default: 50).
 * **Respons Berhasil (`200 OK`):**
   ```json
   {
     "success": true,
+    "count": 1,
     "data": [
       {
         "id": 89,
         "tankId": "e0a7e584-6091-4560-b6aa-cf4a852875a1",
         "tankName": "Tangki Atap Gedung Utama",
+        "tankLocation": "Atap Gedung A (Utama), Lantai 5",
         "level": "CRITICAL",
         "message": "Level air kritis: 28.5% (di bawah batas 30.0%)",
         "status": "active",
@@ -598,8 +631,8 @@ Berikut adalah daftar lengkap (matriks periksa) seluruh endpoint API yang disedi
   }
   ```
 
-#### `PATCH /api/alerts/:id/resolve`
-* **Deskripsi:** Menyelesaikan peringatan bahaya secara manual oleh operator/admin.
+#### `PATCH /api/alerts/:id/resolve` & `PUT /api/alerts/:id/resolve`
+* **Deskripsi:** Menyelesaikan peringatan bahaya secara manual oleh operator/admin dan memancarkan event WebSocket `ALERT_RESOLVED`.
 * **Autentikasi:** Wajib Token (Role `admin` atau `operator`)
 * **Respons Berhasil (`200 OK`):**
   ```json
@@ -607,7 +640,11 @@ Berikut adalah daftar lengkap (matriks periksa) seluruh endpoint API yang disedi
     "success": true,
     "data": {
       "id": 89,
+      "tankId": "e0a7e584-6091-4560-b6aa-cf4a852875a1",
+      "level": "CRITICAL",
+      "message": "Level air kritis: 28.5% (di bawah batas 30.0%)",
       "status": "resolved",
+      "createdAt": "2026-10-22T02:45:10.000Z",
       "resolvedAt": "2026-10-22T03:05:12.000Z"
     }
   }
@@ -618,7 +655,8 @@ Berikut adalah daftar lengkap (matriks periksa) seluruh endpoint API yang disedi
 ### 6.7 Modul Perangkat (Gateways & Nodes)
 
 #### `GET /api/gateways`
-* **Deskripsi:** Daftar seluruh Gateway Raspberry Pi beserta status online dan node-node sensor yang terhubung.
+* **Deskripsi:** Daftar seluruh Gateway Raspberry Pi beserta status online, jumlah node, dan node-node sensor yang terhubung.
+* **Autentikasi:** Wajib Bearer Token (`Authorization: Bearer <token>`)
 * **Respons Berhasil (`200 OK`):**
   ```json
   {
@@ -629,14 +667,19 @@ Berikut adalah daftar lengkap (matriks periksa) seluruh endpoint API yang disedi
         "deviceCode": "GW-HUB-01",
         "status": "online",
         "lastHeartbeat": "2026-10-22T03:00:00.000Z",
+        "createdAt": "2026-10-20T01:00:00.000Z",
+        "nodesCount": 1,
         "nodes": [
           {
             "id": "c4d18723-5e72-46fa-b12e-188998abcf12",
-            "deviceCode": "NODE-TNK-01",
-            "tankName": "Tangki Atap Gedung Utama",
+            "tankId": "e0a7e584-6091-4560-b6aa-cf4a852875a1",
+            "gatewayId": "11111111-2222-3333-4444-555555555555",
+            "deviceCode": "STM32-ATA",
+            "sensorType": "ultrasonic",
             "status": "active",
             "lastRssi": -74,
-            "lastSeen": "2026-10-22T03:00:00.000Z"
+            "lastSeen": "2026-10-22T03:00:00.000Z",
+            "createdAt": "2026-10-20T01:00:00.000Z"
           }
         ]
       }
@@ -644,18 +687,23 @@ Berikut adalah daftar lengkap (matriks periksa) seluruh endpoint API yang disedi
   }
   ```
 
+#### `GET /api/nodes`
+* **Deskripsi:** Daftar seluruh modul sensor node STM32 beserta relasi nama tangki dan kode gateway (`{ success: true, count, data: [{ id, deviceCode, sensorType, status, lastRssi, lastSeen, tankId, tankName, gatewayId, gatewayCode }] }`).
+* **Autentikasi:** Wajib Bearer Token (`Authorization: Bearer <token>`)
+
 #### `GET /api/gateways/:deviceCode/sync`
 * **Deskripsi:** Endpoint internal khusus sinkronisasi perangkat Raspberry Pi ke Backend saat pertama kali boot.
-* **Autentikasi:** Header `x-gateway-key: <GATEWAY_SYNC_KEY>`
+* **Autentikasi:** Header `x-gateway-key: <GATEWAY_SYNC_KEY>` atau Bearer Token
+* **Respons Berhasil (`200 OK`):** `{ success: true, gatewayCode, syncedAt, mappings: [{ deviceCode, sensorNodeId, tankId, tankName, capacityLiters, minDistanceCm, maxDistanceCm }] }`
 
 ---
 
 ### 6.8 Modul Manajemen Pengguna (Admin)
 
-* `GET /api/users`: Menampilkan seluruh daftar pengguna (Admin only).
-* `POST /api/users`: Mendaftarkan akun operator/viewer baru dengan body `{ username, password, role }`.
-* `PATCH /api/users/:id`: Memperbarui peran (`role`), status aktif (`isActive`), atau reset `password`.
-* `DELETE /api/users/:id`: Menonaktifkan akun pengguna (`isActive: false`).
+* `GET /api/users`: Menampilkan seluruh daftar pengguna (`{ success: true, count, data: [{ id, username, role, isActive, createdAt }] }`) — Admin only.
+* `POST /api/users`: Mendaftarkan akun baru dengan body `{ username, password, role }` (`201 Created`, `409 Conflict` jika username sudah digunakan) — Admin only.
+* `PATCH /api/users/:id` & `PUT /api/users/:id`: Memperbarui peran (`role`), status aktif (`isActive`), atau reset `password` (mengembalikan `data: { id, username, role, isActive }`) — Admin only.
+* `DELETE /api/users/:id`: Menghapus akun pengguna dari database — Admin only.
 
 ---
 
@@ -663,29 +711,34 @@ Berikut adalah daftar lengkap (matriks periksa) seluruh endpoint API yang disedi
 
 #### `GET /api/audit-logs`
 * **Deskripsi:** Riwayat rekam jejak aksi pengguna di sistem.
-* **Query Parameters:** `page`, `limit`, `action`, `userId`.
+* **Autentikasi:** Khusus Role `admin`
+* **Query Parameters:** `page` (default `1`), `limit` (default `50`, maks `100`), `entity` (opsional, misal `tanks`, `alerts`, `users`).
 * **Respons Berhasil (`200 OK`):**
   ```json
   {
     "success": true,
+    "page": 1,
+    "limit": 50,
+    "total": 142,
     "data": [
       {
         "id": 142,
+        "userId": "7b89f5c2-3e21-4f90-a548-d3c267b14002",
         "action": "LOGIN",
         "entity": "users",
         "entityId": "7b89f5c2-3e21-4f90-a548-d3c267b14002",
-        "detail": "Pengguna admin berhasil login",
+        "detail": "User admin berhasil login",
         "ipAddress": "192.168.1.100",
         "createdAt": "2026-10-22T01:30:00.000Z"
       }
-    ],
-    "total": 142
+    ]
   }
   ```
 
 #### `GET /api/reports/readings/export` & `GET /api/reports/alerts/export`
-* **Deskripsi:** Mengunduh file laporan dalam format `.csv` (Content-Type: `text/csv`).
-* **Query Parameters:** `tankId`, `from` (ISO date), `to` (ISO date).
+* **Deskripsi:** Mengunduh file laporan dalam format `.csv` (`Content-Type: text/csv; charset=utf-8`). Backend saat ini hanya mendukung format CSV (maks. `10.000` baris untuk readings, `5.000` baris untuk alerts).
+* **Query Parameters Readings:** `tankId` *(Wajib)*, `startDate` (ISO date, opsional), `endDate` (ISO date, opsional). Kolom CSV: `id,tank_id,sensor_node_id,level_percent,volume_liters,raw_value,rssi,recorded_at`.
+* **Query Parameters Alerts:** `level` (`WARNING` | `CRITICAL`, opsional), `startDate` (ISO date, opsional), `endDate` (ISO date, opsional). Kolom CSV: `id,tank_id,level,message,status,created_at,resolved_at`.
 
 ---
 
@@ -693,35 +746,39 @@ Berikut adalah daftar lengkap (matriks periksa) seluruh endpoint API yang disedi
 
 Frontend dapat membuka koneksi WebSocket persisten untuk menerima pembaruan instan tanpa harus melakukan request HTTP berulang kali:
 
-* **URL WebSocket:** `ws://localhost:8000/ws`
-* **Protokol:** JSON Event Streaming
+* **URL WebSocket:** `ws://localhost:8000/ws?token=<jwt>` (Wajib menyertakan `?token=<jwt>` atau header `Authorization: Bearer <jwt>`; tanpa token valid server menutup koneksi dengan kode `1008 Policy Violation`)
+* **Protokol:** JSON Event Streaming dengan key discriminator `"type"`
 
 ### Format Event WebSocket
 
 #### 1. Event `CONNECTED` (Saat Pertama Terhubung)
-Dikirim oleh server segera setelah koneksi WebSocket berhasil dibuka:
+Dikirim oleh server segera setelah koneksi WebSocket dan verifikasi JWT berhasil:
 ```json
 {
-  "event": "CONNECTED",
-  "data": {
-    "clientId": "ws-client-1698000000",
-    "timestamp": "2026-10-22T03:00:00.000Z"
-  }
+  "type": "CONNECTED",
+  "message": "Terhubung ke stream realtime monitoring tangki",
+  "user": "admin",
+  "timestamp": "2026-10-22T03:00:00.000Z"
 }
 ```
 
 #### 2. Event `LEVEL_UPDATE` (Ketinggian Air Berubah)
-Dipancarkan setiap kali pembacaan sensor baru berhasil diolah oleh Worker:
+Dipancarkan setiap kali pembacaan sensor baru berhasil diolah oleh MQTT Subscriber (`snake_case`):
 ```json
 {
-  "event": "LEVEL_UPDATE",
+  "type": "LEVEL_UPDATE",
+  "timestamp": "2026-10-22T03:00:00.120Z",
   "data": {
-    "tankId": "e0a7e584-6091-4560-b6aa-cf4a852875a1",
-    "tankName": "Tangki Atap Gedung Utama",
-    "levelPercent": "72.40",
-    "volumeLiters": "7240.00",
+    "tank_id": "e0a7e584-6091-4560-b6aa-cf4a852875a1",
+    "sensor_node_id": "c4d18723-5e72-46fa-b12e-188998abcf12",
+    "distance_cm": 112.4,
+    "level_percent": 72.4,
+    "volume_liters": 7240,
+    "raw_value": 112.4,
     "rssi": -74,
-    "recordedAt": "2026-10-22T03:00:00.000Z"
+    "sequence": 172,
+    "is_buffered": false,
+    "timestamp": "2026-10-22T03:00:00.000Z"
   }
 }
 ```
@@ -730,14 +787,16 @@ Dipancarkan setiap kali pembacaan sensor baru berhasil diolah oleh Worker:
 Dipancarkan saat volume air masuk kategori `WARNING` atau `CRITICAL`:
 ```json
 {
-  "event": "ALERT_TRIGGERED",
+  "type": "ALERT_TRIGGERED",
+  "timestamp": "2026-10-22T03:00:00.000Z",
   "data": {
     "id": 89,
     "tankId": "e0a7e584-6091-4560-b6aa-cf4a852875a1",
-    "tankName": "Tangki Atap Gedung Utama",
     "level": "CRITICAL",
-    "message": "Level air kritis: 28.5% (di bawah batas 30.0%)",
-    "createdAt": "2026-10-22T03:00:00.000Z"
+    "message": "Level air tangki Tangki Atap Gedung Utama CRITICAL: 28.5% (di bawah 30%)",
+    "status": "active",
+    "createdAt": "2026-10-22T03:00:00.000Z",
+    "resolvedAt": null
   }
 }
 ```
@@ -746,26 +805,31 @@ Dipancarkan saat volume air masuk kategori `WARNING` atau `CRITICAL`:
 Dipancarkan saat alert diselesaikan secara manual oleh operator atau auto-resolve oleh sistem:
 ```json
 {
-  "event": "ALERT_RESOLVED",
+  "type": "ALERT_RESOLVED",
+  "timestamp": "2026-10-22T03:05:00.000Z",
   "data": {
     "id": 89,
     "tankId": "e0a7e584-6091-4560-b6aa-cf4a852875a1",
+    "level": "CRITICAL",
+    "message": "Level air tangki Tangki Atap Gedung Utama CRITICAL: 28.5% (di bawah 30%)",
+    "status": "resolved",
+    "createdAt": "2026-10-22T03:00:00.000Z",
     "resolvedAt": "2026-10-22T03:05:00.000Z"
   }
 }
 ```
 
 #### 5. Event `NODE_STATUS` (Status Perangkat)
-Dipancarkan jika node sensor STM32 offline atau mengalami gangguan:
+Dipancarkan jika status node sensor STM32 berubah melalui MQTT (`snake_case`):
 ```json
 {
-  "event": "NODE_STATUS",
+  "type": "NODE_STATUS",
+  "timestamp": "2026-10-22T03:00:00.000Z",
   "data": {
-    "nodeId": "c4d18723-5e72-46fa-b12e-188998abcf12",
-    "deviceCode": "NODE-TNK-01",
+    "sensor_node_id": "STM32-ATA",
     "status": "active",
-    "lastRssi": -74,
-    "lastSeen": "2026-10-22T03:00:00.000Z"
+    "battery_level": 94,
+    "timestamp": "2026-10-22T03:00:00.000Z"
   }
 }
 ```
@@ -840,17 +904,18 @@ Backend dilengkapi script pengujian otomatis terpadu (`npm run test:api`) yang m
 
 Sebagai acuan operasional bagi tim pengembang antarmuka:
 
-1. **Jadikan BE Acuan Mutlak:** Seluruh nama field JSON mengikuti camelCase yang dikembalikan BE (`levelPercent`, `capacityLiters`, `minThresholdPercent`). Jangan mengubah nama properti ini tanpa persetujuan.
+1. **Jadikan BE Acuan Mutlak:** Seluruh nama field JSON REST API mengikuti `camelCase` yang dikembalikan BE (`levelPercent`, `capacityLiters`, `minThresholdPercent`), sedangkan payload WebSocket `LEVEL_UPDATE` & `NODE_STATUS` menggunakan `snake_case` (`tank_id`, `level_percent`, `volume_liters`) sesuai kontrak BE.
 2. **Peran Next.js API Routes sebagai BFF:** Web frontend memanfaatkan Next.js App Router API Routes sebagai BFF untuk:
    * Menyimpan JWT Token di dalam **HTTP-only cookie** yang aman dari XSS.
-   * Menjadi proksi agregasi request jika diperlukan.
+   * Memproksikan seluruh endpoint REST Core BE secara seragam bagi klien Web maupun Mobile.
 3. **Penyimpanan Token di Mobile:** Aplikasi React Native Expo wajib menyimpan JWT token di media penyimpanan terenkripsi hardware (**`expo-secure-store`**), bukan di `AsyncStorage` biasa.
 4. **Strategi Koneksi Realtime Dual-Mode:**
    * Lakukan *initial load* komponen kartu tangki via `GET /api/tanks`.
-   * Buka WebSocket ke `ws://localhost:8000/ws`.
-   * Saat menerima event `LEVEL_UPDATE`, perbarui state lokal tangki di Zustand store secara reaktif.
+   * Buka WebSocket ke `ws://localhost:8000/ws?token=<jwt>`.
+   * Saat menerima event `LEVEL_UPDATE`, petakan `tank_id`, `level_percent`, dan `volume_liters` untuk memperbarui state lokal tangki di Zustand store secara reaktif.
    * Jika koneksi WebSocket terputus (*disconnected*), lakukan *exponential backoff reconnect* dan gunakan *polling interval* (misal setiap 10-15 detik) sebagai jaring pengaman (*fallback*).
-5. **Penanganan Error Terpadu:**
-   * HTTP 401: Hapus sesi/token dan arahkan pengguna ke halaman Login.
-   * HTTP 403: Tampilkan pesan *"Anda tidak memiliki hak otorisasi untuk aksi ini"*.
-   * HTTP 404 / 500: Tampilkan UI Error Banner dengan tombol *Retry*.
+5. **Penanganan Error & Rate Limit Terpadu:**
+   * HTTP `401`: Hapus sesi/token (karena token invalid atau masa berlaku `JWT_EXPIRES_IN=1d` berakhir) dan arahkan pengguna ke halaman Login.
+   * HTTP `403`: Tampilkan pesan *"Anda tidak memiliki hak otorisasi untuk aksi ini"*.
+   * HTTP `429`: Tampilkan pesan batas laju request terlampaui beserta waktu tunggu `retryAfter` (global default BE: 120 req/menit; login: 5 req/menit).
+   * HTTP `404` / `500` / `503`: Tampilkan UI Error Banner dengan tombol *Retry*.

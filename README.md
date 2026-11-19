@@ -58,9 +58,9 @@ frontend-documentation-rsa-ugm/
 
 | Dokumen | Peran & Ruang Lingkup | Tautan |
 | :--- | :--- | :--- |
-| **`PRD.md`** | **Core Backend Contract:** Kontrak 24 API, skema DB TimescaleDB, MQTT Ingestion, dan Warning Engine. | [Buka Dokumen](./PRD.md) |
-| **`PRD-MFE.md`** | **Master Frontend:** Arsitektur BFF, pemetaan 8 fitur (F-01 s.d. F-08), WebSocket real-time, dan standar AAA. | [Buka Dokumen](./PRD-MFE.md) |
-| **`web/PRD-Web.md`** | **Web & BFF:** Implementasi detail Next.js App Router, 23 rute handler BFF, Recharts, dan Tailwind v4. | [Buka Dokumen](./web/PRD-Web.md) |
+| **`PRD.md`** | **Core Backend Contract:** Kontrak 23 endpoint API & WS, skema DB TimescaleDB, MQTT Ingestion, dan Warning Engine. | [Buka Dokumen](./PRD.md) |
+| **`PRD-MFE.md`** | **Master Frontend:** Arsitektur BFF, pemetaan 8 fitur (F-01 s.d. F-08), WebSocket real-time (`?token=`), dan standar AAA. | [Buka Dokumen](./PRD-MFE.md) |
+| **`web/PRD-Web.md`** | **Web & BFF:** Implementasi detail Next.js App Router, 24 rute handler BFF, Recharts, dan Tailwind v4. | [Buka Dokumen](./web/PRD-Web.md) |
 | **`mobile/PRD-Mobile.md`** | **Mobile App:** Spesifikasi teknis React Native 0.88 & Expo SDK 58, Hospital Clean Light UI, Jest testing, Multi-Stage CI, sliding drawer, dan glance cards. | [Buka Dokumen](./mobile/PRD-Mobile.md) |
 
 ---

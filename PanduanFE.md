@@ -134,7 +134,7 @@ Karena Frontend dan Backend adalah dua proyek yang berjalan berdampingan, **sang
    pnpm run dev
    ```
    > 🟢 Backend aktif di: `http://localhost:8000`  
-   > 📑 Dokumentasi Swagger API: `http://localhost:8000/documentation`  
+   > 📑 Dokumentasi Swagger API: `http://localhost:8000/docs` (alias `/documentation`)  
    > *Biarkan Terminal 1 ini tetap terbuka dan berjalan.*
 
 ---
@@ -177,10 +177,9 @@ Karena Frontend dan Backend adalah dua proyek yang berjalan berdampingan, **sang
    pnpm run dev
    ```
    > 🟢 Akses Dashboard di browser: 👉 `http://localhost:3000`  
-   > Kredensial Login Dev:
+   > Kredensial Login Awal (`init-db`):
    > - **Admin:** `admin` / `admin123`
-   > - **Operator:** `operator` / `op123`
-   > - **Viewer:** `viewer` / `view123`  
+   > - *(Akun `operator` dan `viewer` dibuat oleh Admin melalui menu Users / `POST /api/users`)*  
    > *Biarkan Terminal 2 ini tetap terbuka dan berjalan.*
 
 ---
