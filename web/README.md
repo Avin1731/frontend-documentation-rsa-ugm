@@ -18,13 +18,13 @@ $$\text{Core Backend (PRD.md)} \longrightarrow \text{Master Frontend (PRD-MFE.md
 ---
 
 ## 🚀 Ringkasan Teknis
-* **Framework:** Next.js 16.3.6 (App Router)
+* **Framework:** Next.js 16.4.6 (App Router)
 * **Runtime Peran Ganda:**
   1. *Web Client UI* (Dashboard ruang kontrol rumah sakit untuk layar ultrawide).
-  2. *Backend-for-Frontend (BFF)* (`src/app/api/*`) yang melayani klien Web dan Mobile.
-* **Styling & Icons:** Tailwind CSS v4 & Lucide React.
-* **State & Visualisasi:** Zustand v5 & Recharts v3.
-* **Keamanan Sesi:** Cookie `HttpOnly; SameSite=Lax; Secure` (anti-XSS).
+  2. *Backend-for-Frontend (BFF)* (`src/app/api/*`) yang melayani klien Web dan Mobile (termasuk CORS preflight).
+* **Styling & Icons:** Tailwind CSS v4.3.5 & Lucide React.
+* **State & Visualisasi:** Zustand ^5.1.0 & Recharts ^3.11.1.
+* **Keamanan Sesi:** Cookie `HttpOnly; SameSite=Lax; Secure` (`maxAge: 1d`, anti-XSS).
 * **Port Lokal:** `http://localhost:3000`
 
 ---

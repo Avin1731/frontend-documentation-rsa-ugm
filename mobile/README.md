@@ -18,16 +18,17 @@ $$\text{Core Backend (PRD.md)} \longrightarrow \text{Master Frontend (PRD-MFE.md
 ---
 
 ## 🚀 Ringkasan Teknis
-* **Framework:** React Native 0.88.0 via Expo SDK 58 (`~58.0.19`)
+* **Framework:** React Native 0.88.1 via Expo SDK 58 (`~58.0.26`)
 * **Library UI:** React 19.3.0
 * **Bahasa:** TypeScript ~6.0.3
-* **HTTP Client:** Axios ^1.20.0 (terhubung ke Web BFF Next.js via IP LAN / Tailscale)
+* **Ikonografi & Font:** `@expo/vector-icons` ^15.0.2 (Feather) & `expo-font` ~58.0.12 (bebas emoji)
+* **HTTP Client:** Axios ^1.21.1 (terhubung ke Web BFF Next.js via IP LAN / Tailscale)
 * **Realtime Channel:** WebSocket native (`ws://<HOST_IP>:8000/ws?token=<jwt>` ke Fastify Core)
-* **State Management:** Zustand ^5.0.16 (Tanks, Alerts, Auth, Devices)
-* **Keamanan Kredensial:** Expo SecureStore ~58.0.2 (Enkripsi hardware Keystore/Keychain, anti-AsyncStorage)
-* **Unit Testing:** Jest ^30.5.2 & ts-jest ^29.4.15 (Automated unit tests dengan metrik coverage)
-* **CI Quality Gate:** GitHub Actions Multi-Stage Pipeline (3 Chained Stages: Healthcheck $\rightarrow$ Unit Tests $\rightarrow$ Dry Export)
-* **Desain UI:** Hospital Clean Light Theme (`#F8FAFC`, `#FFFFFF`, `#E2E8F0`, `#0F172A`, `#0A354C`), dot badges semantik, dan area sentuh ramah sentuhan jempol ($\ge 44 \times 44\text{ dp}$)
+* **State Management:** Zustand ^5.1.0 (Tanks, Alerts, Auth, Devices, Reports, AuditLogs, Users) dengan selector granular
+* **Keamanan Kredensial:** Expo SecureStore ~58.0.3 (Enkripsi hardware Keystore/Keychain, anti-AsyncStorage)
+* **Unit Testing:** Jest ^30.5.2 & ts-jest ^29.4.15 (11 suites / 58 tests dengan metrik coverage)
+* **CI Quality Gate:** GitHub Actions Single-Pipeline (`typecheck`, `test:ci`, `expo-doctor`, `expo export`)
+* **Desain UI & Performa:** Design Tokens selaras Figma Web (`#0A3F5C`, `#05004E`, `#FECB28`, `#ECF4F9`, `#E4002B`), lambang resmi UGM, Skeleton loader, animasi native-driver (`useReducedMotion`), dan virtualisasi `FlatList`
 
 ---
 
